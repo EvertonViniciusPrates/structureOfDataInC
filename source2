@@ -1,0 +1,102 @@
+// C4996_containers.cpp
+// compile with: cl /c /W4 /D_DEBUG C4996_containers.cpp
+#include<stdio.h>
+#include<stdlib.h>
+#include<conio.h>
+#include<ctype.h>
+#include<string.h>
+
+//@Author Everton Prates
+//RA:215213412
+struct filaChurrasco
+{
+	char nomeConvidado[14];
+	char ra[12];
+	char pagoNaoPago[4];
+	filaChurrasco *proximo;
+};
+int main() {
+	filaChurrasco *inicio = NULL;
+	filaChurrasco *fim = NULL;
+	filaChurrasco *novo;
+	filaChurrasco* aux;
+	char excluido[12];
+	char op;
+
+	do {		
+		printf("O que deseja fazer? [I]nserir, Es[V]aziar, [E]xcluir proximo da fila, [L] ou [S]air?: \n");
+		op = toupper(getchar());		
+		switch (op)
+		{
+		case 'I':		
+			novo = (filaChurrasco*)malloc(sizeof(filaChurrasco));
+
+			printf("\nDigite o nome do convidado!: \n");
+			fflush(stdin); while (getchar() != '\n');
+			fgets(novo->nomeConvidado, 14, stdin);
+			printf("Digite o ra do convidado!: \n");
+			fflush(stdin);
+			fgets(novo->ra, 12, stdin);
+			printf("Digite se o convidado pagou!: \n");
+			fflush(stdin);
+			fgets(novo->pagoNaoPago, 4, stdin);
+
+			if (novo == NULL) {
+				printf("Sem espaço de memória");
+				return 1;
+			}
+			if (inicio == NULL) {
+				inicio = novo;
+			}
+			else {
+				fim->proximo = novo;
+			}
+			novo->proximo = NULL;
+			fim = novo;
+			novo = NULL;		
+		break;
+		case 'V':
+			while (inicio != NULL) {
+				aux = inicio->proximo;
+				free(inicio);
+				inicio = NULL;
+				inicio = aux;
+			}
+			break;
+		case 'L':
+			aux = inicio;
+			if (aux == NULL) {
+				printf("Lista Vazia!!! \n");
+				break;
+			}
+			while (aux->proximo != NULL) {
+				printf("Nome:%s Ra:%s - Pago:%s", aux->nomeConvidado, aux->ra, aux->pagoNaoPago);
+				printf("\n");
+				aux = aux->proximo;
+			}
+			printf("Nome:%s Ra:%s - Pago:%s", aux->nomeConvidado, aux->ra, aux->pagoNaoPago);
+			printf("\n");
+			break;
+		break;
+			case 'E':
+				if (inicio == NULL) {				
+					printf("Fila Vazia, adicione ao menos 1 elemento para ser deletado! \n ");
+					break;
+				}
+				else if (inicio != NULL && inicio->proximo == NULL) {
+					free(inicio);
+					inicio = NULL;
+					break;
+				}
+				if (inicio->proximo != NULL) {
+					aux = inicio->proximo;
+					free(inicio);
+					inicio = NULL;
+					inicio = aux;
+				}				
+			break;
+		default:
+			break;
+		}
+	} while (op != 'S');
+}
