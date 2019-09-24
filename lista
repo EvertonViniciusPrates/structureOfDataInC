@@ -1,0 +1,142 @@
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+#include<ctype.h>
+#include<string>
+
+struct listaSimples {
+	char nome[20];
+	listaSimples* prox;
+};
+void add(listaSimples** inicio, listaSimples** fim);
+listaSimples* registro();
+void list(listaSimples* inicio);
+void esvaziar(listaSimples** inicio);
+void removerRegistro(listaSimples** inicio, listaSimples** fim);
+listaSimples* remove(char removido[20], listaSimples** inicio);
+void addPorParametro(listaSimples** inicio, listaSimples** fim, listaSimples* novoValor);
+
+void main() {
+	listaSimples* inicio = NULL;
+	listaSimples* fim = NULL;
+	char op;
+
+	do {
+		printf("O que deseja fazer? [I]nserir, [E]xcluir, Es[V]aziar, [L]istar ou [Sair]?: \n");
+		op = toupper(getchar());
+		while (getchar() != '\n');
+		switch (op)
+		{
+		case 'I':
+			add(&inicio, &fim);
+			break;
+		case 'E':
+			removerRegistro(&inicio, &fim);
+			break;
+		case 'V':
+			registro();
+			break;
+		case 'L':
+			list(inicio);
+			break;
+		default:
+			break;
+		}
+
+	} while (op != 'S');
+}
+
+void list(listaSimples * lista) {
+	if (lista == NULL)
+		printf("Lista Vazia!!! \n");
+
+	while (lista != NULL) {
+		printf("Nome : %s \n", lista->nome);
+		lista = lista->prox;
+	}
+}
+
+void add(listaSimples * *inicio, listaSimples * *fim) {
+	listaSimples* novo = registro();
+	if (*inicio == NULL) {
+		*inicio = novo;
+	}
+	else {
+		(*fim)->prox = novo;
+	}
+	*fim = novo;
+	novo = NULL;
+}
+
+listaSimples* registro() {
+	listaSimples* novo = (listaSimples*)malloc(sizeof(listaSimples));
+	if (novo == NULL) {
+		printf("Sem espaço de memória: \n");
+		return NULL;
+	}
+	printf("Digite o nome do usuario: \n");
+	fflush(stdin);
+	fgets(novo->nome, 20, stdin);
+
+	novo->prox = NULL;
+	return novo;
+};
+
+listaSimples* remove(char removido[20], listaSimples * *inicio, listaSimples * *fim) {
+	listaSimples* aux = NULL;
+	listaSimples* novaLista = NULL;
+	listaSimples* novoInicio = NULL;
+	bool encontrado = false;
+	while (*inicio != NULL && encontrado == false) {
+		if (aux == NULL)
+			aux = *inicio;
+
+		addPorParametro(&novoInicio, &*fim, aux);
+
+		aux = (*inicio)->prox;
+		if (strcmp((*inicio)->nome, removido) == 0) {
+			encontrado = true;
+			if (aux->prox != NULL) {
+				*inicio = (*inicio)->prox;
+				aux = (*inicio)->prox;
+			}
+		}
+		*inicio = (*inicio)->prox;
+	}
+	return novaLista;
+}
+
+void removerRegistro(listaSimples * *inicio, listaSimples * *fim) {
+	char removido[20];
+	if (*inicio == NULL) {
+		printf("Sem dado para ser removido! \n");
+		return;
+	}
+	printf("Digite o nome do usuario a ser deletado!");
+	fflush(stdin);
+	fgets(removido, 20, stdin);
+	listaSimples* aux;
+	listaSimples* novaLista = remove(removido, &*inicio, &*fim);
+	esvaziar(&*inicio);
+	*inicio = novaLista;
+}
+
+void esvaziar(listaSimples * *inicio) {
+	listaSimples* aux;
+	while (*inicio != NULL) {
+		aux = (*inicio)->prox;
+		free(*inicio);
+		*inicio = aux;
+	}
+}
+
+void addPorParametro(listaSimples * *inicio, listaSimples * *fim, listaSimples * novoValor) {
+	listaSimples* novo = novoValor;
+	if (*inicio == NULL)
+		* inicio = novo;
+	else
+		(*fim)->prox = novo;
+
+	*fim = novo;
+	novo = NULL;
+}
