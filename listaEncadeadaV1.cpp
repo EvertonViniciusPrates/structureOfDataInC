@@ -16,7 +16,7 @@ struct lista
 
 void inserir(lista** ini, lista ** fim);
 lista* inserirInicio(lista* inicio);
-void inserirMeio(lista* inicio);
+void inserirMeio(lista* inicio, char procurado[10]);
 lista* localizar(lista* inicio, char procurado[10]);
 lista* novoElemento();
 void listar(lista* inicio);
@@ -53,13 +53,17 @@ void listar(lista *inicio) {
 }
 
 void inserir(lista** ini, lista** fim) {
+	char procurado[10];
 	if (*ini == *fim) {
 		*ini = inserirInicio(*ini);
 	}
 	else if ((*ini)->prox == NULL) {
 		*ini = inserirInicio(*ini);
 	} else {
-		inserirMeio(*ini);
+		printf("Inserir Antes De:");
+		fflush(stdin);
+		fgets(procurado, 10, stdin);
+		inserirMeio(*ini, procurado);
 	}
 }
 
@@ -83,14 +87,9 @@ lista* novoElemento() {
 	return novo;
 }
 
-void inserirMeio(lista* inicio) {
+void inserirMeio(lista* inicio, char procurado[10]) {
 	lista* novo = novoElemento();
-	char procurado[10];
-	printf("Inserir Antes De:");
-	fflush(stdin);
-	fgets(procurado, 10, stdin);
 	lista* enc = localizar(inicio, procurado);
-
 	novo->prox = enc->prox;
 	enc->prox = novo;
 }
