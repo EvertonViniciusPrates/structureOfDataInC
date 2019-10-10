@@ -14,13 +14,13 @@ struct lista
 	lista* prox;
 };
 
-void inserir(lista** ini, lista ** fim);
+void inserir(lista** ini, lista** fim);
 lista* inserirInicio(lista* inicio);
-void inserirMeio(lista* inicio, char procurado[10]);
-lista* localizar(lista* inicio, char procurado[10]);
+void inserirMeio(lista* inicio, char procurado[10], char procuradoDepois[10]);
+lista* localizar(lista* inicio, char procurado[10], char procuradoDepois[10]);
 lista* novoElemento();
 void listar(lista* inicio);
-void excluir(lista **ini, lista **fim);
+void excluir(lista** ini, lista** fim);
 void removeMeio(lista* inicio, char procurado[10]);
 lista* removeInicio(lista* inicio);
 void esvaziar(lista** inicio);
@@ -35,8 +35,7 @@ int main() {
 		while (getchar() != '\n');
 		switch (op)
 		{
-		case 'I' : inserir(&inicio, &fim);
-			break;
+		case 'I': inserir(&inicio, &fim);break;
 		case 'L': listar(inicio); break;
 		case 'E': excluir(&inicio, &fim); break;
 		case 'X': esvaziar(&inicio); break;
@@ -46,7 +45,7 @@ int main() {
 	} while (op);
 }
 
-void listar(lista *inicio) {
+void listar(lista* inicio) {
 	if (inicio == NULL) {
 		printf("Lista Vazia!\n");
 	}
@@ -59,21 +58,41 @@ void listar(lista *inicio) {
 }
 
 void inserir(lista** ini, lista** fim) {
+	char op;
 	if (*ini == *fim) {
 		*ini = inserirInicio(*ini);
 	}
 	else if ((*ini)->prox == NULL) {
 		*ini = inserirInicio(*ini);
-	} else {
+	}
+	else {
 		char procurado[10];
-		printf("Inserir Antes De:\n");
-		fflush(stdin);
-		fgets(procurado, 10, stdin);
-
-		if (strcmp(procurado, (*ini)->ra) == 0)
-			* ini = inserirInicio(*ini);
-		else {
-			inserirMeio(*ini, procurado);
+		printf("Deseja Inserir [A]ntes ou [D]epois?");
+		op = toupper(getchar());
+		switch (op)
+		{
+		case 'A':			
+			printf("Inserir Antes De:\n");
+			fflush(stdin); while (getchar() != '\n');
+			fgets(procurado, 10, stdin);
+			if (strcmp(procurado, (*ini)->ra) == 0)
+				* ini = inserirInicio(*ini);
+			else {
+				inserirMeio(*ini, procurado, NULL);
+			}
+			break;
+		case 'D':
+			printf("Inserir Depois De:\n");
+			fflush(stdin); while (getchar() != '\n');
+			fgets(procurado, 10, stdin);
+			if (strcmp(procurado, (*ini)->ra) == 0)
+				* ini = inserirInicio(*ini);
+			else {
+				inserirMeio(*ini, NULL, procurado);
+			}
+			break;
+		default: *ini = inserirInicio(*ini);
+			break;
 		}
 	}
 }
@@ -98,19 +117,33 @@ lista* novoElemento() {
 	return novo;
 }
 
-void inserirMeio(lista* inicio, char procurado[10]) {
+void inserirMeio(lista* inicio, char procuradoAntes[10], char procuradoDepois[10]) {
 	lista* novo = novoElemento();
-	lista* enc = localizar(inicio, procurado);
-
-	novo->prox = enc->prox;
-	enc->prox = novo;	
+	lista* enc = localizar(inicio, procuradoAntes, procuradoDepois);
+	if (enc == NULL) {
+		if (procuradoAntes == NULL)
+			printf("Esse valor nao existe para ser iserido algo antes dele! Valor:%s \n", procuradoDepois);
+		else
+			printf("Esse valor nao existe para ser iserido algo depois dele! Valor:%s \n", procuradoAntes);
+	}
+	else {
+		if (procuradoAntes == NULL) {
+			lista* aux = enc->prox;
+			novo->prox = aux;
+			enc->prox = novo;
+		}
+		else {
+			novo->prox = enc->prox;
+			enc->prox = novo;
+		}
+	}
 }
 
 void excluir(lista** ini, lista** fim) {
 	if (*ini == *fim) {
 		printf("Sua lista está vazia, por favor insira novos elementos!\n");
 	}
-	else if((*ini)->prox == NULL){
+	else if ((*ini)->prox == NULL) {
 		*ini = removeInicio(*ini);
 	}
 	else {
@@ -141,25 +174,29 @@ lista* removeInicio(lista* inicio) {
 	return inicio;
 }
 
-void removeMeio(lista*inicio,char procurado[10]) {
-	lista* enc = localizar(inicio, procurado);
+void removeMeio(lista* inicio, char procurado[10]) {
+	lista* enc = localizar(inicio, procurado, NULL);
 	lista* aux = enc->prox->prox;
 	free(enc->prox);
 	enc->prox = aux;
 }
 
-lista* localizar(lista* inicio, char procurado[10]) {
-	while (inicio->prox != NULL && strcmp(procurado, inicio->prox->ra) != 0) 
+lista* localizar(lista* inicio, char procuradoAntes[10], char procuradoDepois[10]) {
+	while (procuradoAntes != NULL && inicio->prox != NULL && strcmp(procuradoAntes, inicio->prox->ra) != 0)
 		inicio = inicio->prox;
-	
+
+	while(procuradoDepois != NULL && inicio != NULL && strcmp(procuradoDepois, inicio->ra) != 0)
+		inicio = inicio->prox;
+
 	return inicio;
 }
 
-void esvaziar(lista** inicio) {
+void esvaziar(lista * *inicio) {
 	lista* aux = *inicio;
 	if (*inicio == NULL) {
 		printf("Impossivel esvaziar uma lista vazia!\n");
-	} else
+	}
+	else
 		while (*inicio != NULL) {
 			aux = (*inicio)->prox;
 			free(*inicio);
