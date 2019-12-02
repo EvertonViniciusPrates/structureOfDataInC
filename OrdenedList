@@ -1,0 +1,134 @@
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+#include<ctype.h>
+
+struct listd {
+	listd* ant;
+	listd* prox;
+	unsigned long long int ra;
+};
+
+void inserir(listd ** ini, listd ** fim);
+listd* novoElemento();
+char escolha();
+listd* inserirNoInicio(listd* inicio, listd* novo);
+listd* inserirNoFim(listd* inicio, listd* novo);
+void listar(listd* inicio);
+void inserirOrdenado(listd* inicio, listd** fim, listd* enc);
+listd* localizaMaior(listd** ini, listd *novo);
+
+void main() {
+	listd* inicio, *fim;
+	inicio = fim = NULL;
+	char op;
+	do {
+		printf("[I]nserir [O]rdenado [R]remover [L]istar [E]svaziar \n");
+		op = toupper(getchar());
+		fflush(stdin);
+		while (getchar() != '\n');
+		switch (op)
+		{
+		case 'I': inserir(&inicio, &fim); break;
+		case 'L': listar(inicio); break;
+		default: break;
+		}
+	} while (op != 'S');
+}
+
+void inserir(listd ** ini, listd ** fim) {
+	listd *novo = novoElemento();
+	if (*ini == NULL) {
+		*ini = *fim = novo;
+	}
+	else if (*ini == *fim) {
+		if ((*ini)->ra > novo->ra) {
+			*ini = inserirNoInicio(*ini, novo);
+		}
+		else if((*ini)->ra < novo->ra){
+			*fim = inserirNoFim(*fim, novo);
+		}
+	}
+	else {
+		inserirOrdenado(novo, &*fim,localizaMaior(&*ini, novo));
+	}
+}
+
+listd* inserirNoInicio(listd* inicio, listd* novo) {
+	novo->prox = inicio;
+	inicio->ant = novo;
+	inicio = novo;
+	return inicio;
+}
+
+listd* inserirNoFim(listd* fim, listd* novo) {
+	novo->ant = fim;
+	fim->prox = novo;
+	fim = novo;
+	return fim;
+}
+
+listd* novoElemento() {
+	listd* novo = (listd*)malloc(sizeof(listd));
+
+	if (novo == NULL) {
+		printf("Sem espaço de memória disponível");
+	}
+	else {
+		printf("Digite o valor desejado!");
+		scanf("%llu", &novo->ra);
+		novo->ant = NULL;
+		novo->prox = NULL;
+	}
+	return novo;
+}
+
+char escolha() {
+	char op;
+	do {
+		printf("Deseja inserir [A]ntes ou [D]epois? \n");
+		op = toupper(getchar());
+	} while (op != 'A' && op != 'D');
+	return op;
+}
+
+void listar(listd *inicio) {
+	if (inicio == NULL) {
+		printf("Primeiro, insira dados para serem listados!");
+	}
+	else {
+		printf("Lista:\n");
+		while (inicio != NULL) {
+			printf(" %llu -", inicio->ra);
+			inicio = inicio->prox;
+		}
+	}
+}
+
+listd* localizaMaior(listd** ini, listd *novo) {
+	listd* aux = *ini;
+	if (aux->ra > novo->ra) {
+		return aux;
+	}
+	else {
+		while (aux != NULL && novo->ra > aux->ra) {
+			if (aux->prox != NULL && novo->ra < aux->prox->ra) {
+				return aux;
+			}
+			aux = aux->prox;
+		}		
+		return aux;
+	}
+}
+
+void inserirOrdenado(listd* novo, listd** fim, listd *enc) {	
+	if (enc == NULL) {
+		*fim = inserirNoFim(*fim, novo);
+	} else if (enc->ant == NULL && novo->ra < enc->ra) {
+		enc = inserirNoInicio(enc, novo);
+	} else {
+		novo->prox = enc->prox;
+		novo->ant = enc;
+		enc->prox = novo;
+	}
+}
